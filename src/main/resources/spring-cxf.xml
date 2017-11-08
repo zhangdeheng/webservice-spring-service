@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:cxf="http://cxf.apache.org/core"
+	xmlns:jaxws="http://cxf.apache.org/jaxws"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd
+        http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd">
+	<bean id="serverPasswordCallback"
+		class="demo.ws.soap_spring_cxf.ServerPasswordCallback"></bean>
+	<!--发布服务 -->
+	<jaxws:endpoint implementor="#helloService" address="/soap/hello">
+		<jaxws:inInterceptors>
+			<ref bean="wss4jInInterceptor" />
+		</jaxws:inInterceptors>
+	</jaxws:endpoint>
+	<cxf:bus>
+		<cxf:features>
+			<cxf:logging />
+		</cxf:features>
+	</cxf:bus>
+	<bean id="wss4jInInterceptor" class="org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor">
+		<constructor-arg>
+			<map>
+				<entry key="action" value="Signature Encrypt" />
+				<!-- 提供公钥的密码 -->
+				<entry key="passwordCallbackRef" value-ref="serverPasswordCallback" />
+				<entry key="signatureVerificationPropFile" value="server.properties" />
+				<entry key="decryptionPropFile" value="server.properties" />
+			</map>
+		</constructor-arg>
+	</bean>
+</beans>
